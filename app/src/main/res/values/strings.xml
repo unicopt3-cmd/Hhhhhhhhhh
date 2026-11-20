@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">PT Pilot</string>
+    <string name="accessibility_service_label">PT Pilot — Leitura e Automação</string>
+    <string name="accessibility_service_summary">Observa interfaces de jogos e anúncios localmente para identificar botões seguros de fechar/pular.</string>
+    <string name="accessibility_service_description">O PT Pilot utiliza o Serviço de Acessibilidade apenas localmente para detectar anúncios publicitários, analisar botões de fechar/pular com pontuação de segurança e proteger contra redirecionamentos à Play Store. Nenhuma senha ou dado pessoal é coletado.</string>
+    <string name="notification_channel_name">Serviço de Automação PT Pilot</string>
+    <string name="notification_channel_desc">Mantém o assistente de reconhecimento local e a bolha flutuante ativos sobre jogos.</string>
+</resources>

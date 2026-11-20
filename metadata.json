@@ -1,0 +1,6 @@
+{
+  "name": "PT Pilot",
+  "description": "Assistente inteligente de automação e reconhecimento visual local para anúncios em jogos Android com proteção contra redirecionamentos.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
