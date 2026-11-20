@@ -26,14 +26,18 @@ jobs:
       - name: Aceitar licenças do Android SDK e instalar API 36 / 36.1
         shell: bash
         run: |
+          set -e
           set +o pipefail
-          yes | sdkmanager --licenses > /dev/null || true
-          sdkmanager "platform-tools" "platforms;android-36" "platforms;android-36.1" "build-tools;36.0.0" || true
-          ls -la "$ANDROID_HOME/licenses" "$ANDROID_HOME/platforms"
+          yes | sdkmanager --licenses > /dev/null
+          set -o pipefail
+          sdkmanager --install "platform-tools" "platforms;android-36" "platforms;android-36.1" "build-tools;36.0.0"
+          test -s "$ANDROID_HOME/licenses/android-sdk-license"
+          test -d "$ANDROID_HOME/platforms/android-36.1"
 
       - name: Restaurar debug.keystore para assinatura Debug
         shell: bash
         run: |
+          set -e
           if [ ! -f debug.keystore ]; then
             if [ -f debug.keystore.base64 ]; then
               base64 -d debug.keystore.base64 > debug.keystore
@@ -44,11 +48,19 @@ jobs:
                 -dname "CN=Android Debug,O=Android,C=US"
             fi
           fi
+          test -s debug.keystore
 
-      - name: Conceder permissão de execução ao gradlew
-        run: chmod +x ./gradlew
+      - name: Verificar Gradle Wrapper e conceder permissão de execução
+        shell: bash
+        run: |
+          set -e
+          test -f ./gradlew
+          test -f ./gradle/wrapper/gradle-wrapper.jar
+          test -f ./gradle/wrapper/gradle-wrapper.properties
+          chmod +x ./gradlew
+          ./gradlew --version
 
-      - name: Configurar cache e execução Gradle
+      - name: Configurar cache do Gradle
         uses: gradle/actions/setup-gradle@v4
 
       - name: Executar testes unitários, Robolectric e Lint
@@ -57,8 +69,12 @@ jobs:
       - name: Compilar APK instalável (Debug)
         run: ./gradlew :app:assembleDebug --stacktrace
 
-      - name: Verificar APK gerado
-        run: ls -lh app/build/outputs/apk/debug/app-debug.apk
+      - name: Verificar APK gerado no caminho esperado
+        shell: bash
+        run: |
+          set -e
+          test -s app/build/outputs/apk/debug/app-debug.apk
+          ls -lh app/build/outputs/apk/debug/app-debug.apk
 
       - name: Upload do APK como artefato do GitHub Actions
         uses: actions/upload-artifact@v4

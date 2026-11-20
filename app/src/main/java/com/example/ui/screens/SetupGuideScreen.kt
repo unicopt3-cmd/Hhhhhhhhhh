@@ -53,8 +53,8 @@ fun SetupGuideScreen(
   ) {
     item {
       PTPilotBrandHeader(
-        sectionTitle = "Guia SM-X210",
-        sectionSubtitle = "Configuração recomendada para Samsung Galaxy Tab A9+ (One UI).",
+        sectionTitle = "Guia Android",
+        sectionSubtitle = "Configuração de permissões, acessibilidade e bateria em segundo plano.",
       )
     }
 
@@ -77,7 +77,7 @@ fun SetupGuideScreen(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-              text = "Compatibilidade Samsung SM-X210",
+              text = "Compatibilidade Android",
               style = MaterialTheme.typography.titleLarge,
             )
           }
@@ -88,7 +88,7 @@ fun SetupGuideScreen(
           )
           Text(
             text =
-              "O Samsung Galaxy Tab A9+ (SM-X210) usa One UI com restrições agressivas de economia de bateria em segundo plano. Siga os passos abaixo para evitar que o sistema encerre a acessibilidade ou a captura.",
+              "Compatível com celulares e tablets Android (incluindo Samsung One UI / SM-X210). Em aparelhos com economia agressiva de bateria, siga os passos abaixo para manter a acessibilidade e a captura ativas.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
           )
@@ -101,7 +101,7 @@ fun SetupGuideScreen(
         stepNumber = "1",
         title = "Acessibilidade (Apps Instalados)",
         body =
-          "Em Configurações > Acessibilidade > Aplicativos instalados, ative \"PT Pilot — Leitura e Automação\". Se a One UI exibir aviso de configuração restrita, abra Informações do App > menu ⋮ > Permitir configurações restritas.",
+          "Em Configurações > Acessibilidade > Aplicativos instalados, ative \"PT Pilot — Leitura e Automação\". No Android 13+ (ou One UI), se surgir aviso de configuração restrita, abra Informações do App > menu ⋮ > Permitir configurações restritas.",
         done = permissionStatus.accessibilityEnabled,
         actionLabel = "Abrir Acessibilidade",
         testTag = "guide_accessibility_btn",
@@ -112,9 +112,9 @@ fun SetupGuideScreen(
     item {
       GuideStepCard(
         stepNumber = "2",
-        title = "Bateria Sem Restrições (One UI)",
+        title = "Bateria Sem Restrições",
         body =
-          "Defina a bateria do PT Pilot como \"Não restrito\" e remova o app de \"Aplicativos em suspensão profunda\" em Assistência do Aparelho > Bateria.",
+          "Defina a bateria do PT Pilot como \"Não restrito\" para evitar que o sistema encerre a bolha flutuante ou a acessibilidade enquanto você joga.",
         done = permissionStatus.batteryOptimizationIgnored,
         actionLabel = "Configurar Bateria",
         testTag = "guide_battery_btn",

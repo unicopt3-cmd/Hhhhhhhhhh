@@ -266,7 +266,7 @@ fun HeroControlCard(
               if (snapshot.isRunning) {
                 "${snapshot.mode.labelPt} • ${snapshot.phase.labelPt}"
               } else {
-                "Rápido • Seguro • Prático para Samsung SM-X210"
+                "Rápido • Seguro • Prático para Android"
               },
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -757,7 +757,7 @@ fun PermissionSetupBanner(
       }
       if (!status.batteryOptimizationIgnored) {
         PermissionActionRow(
-          label = "5. Bateria Sem Restrição (Samsung SM-X210)",
+          label = "5. Bateria Sem Restrição (Segundo Plano)",
           actionText = "Ajustar",
           icon = Icons.Filled.BatteryChargingFull,
           testTag = "grant_battery_button",

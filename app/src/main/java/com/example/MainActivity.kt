@@ -170,7 +170,7 @@ private fun PTAutoPilotAppShell(viewModel: MainViewModel) {
       ),
       NavTab(
         route = AppRoute.SetupGuide,
-        label = "SM-X210",
+        label = "Guia",
         selectedIcon = Icons.Filled.TabletAndroid,
         unselectedIcon = Icons.Outlined.TabletAndroid,
         testTag = "nav_guide",
