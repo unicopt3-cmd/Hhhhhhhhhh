@@ -25,6 +25,7 @@ import com.example.model.CandidateClassification
 import com.example.model.EngineSnapshot
 import com.example.model.OperationMode
 import com.example.model.ScoredCandidate
+import com.example.model.VisualSymbolType
 import kotlin.math.abs
 
 class OverlayManager(
@@ -350,8 +351,16 @@ class OverlayManager(
         val rect = RectF(b.left.toFloat(), b.top.toFloat(), b.right.toFloat(), b.bottom.toFloat())
         canvas.drawRoundRect(rect, 14f, 14f, boxPaint)
 
+        val rawTitle =
+          item.candidate.text.ifBlank {
+            if (item.candidate.visualSymbol != VisualSymbolType.NONE) {
+              item.candidate.visualSymbol.labelPt
+            } else {
+              "Botão"
+            }
+          }
         val label =
-          "${item.candidate.text.ifBlank { "Botão" }.take(14)} ${(item.confidenceScore * 100).toInt()}%"
+          "${rawTitle.take(16)} ${(item.confidenceScore * 100).toInt()}%"
         val textWidth = labelTextPaint.measureText(label)
         val tagTop = (b.top - 42f).coerceAtLeast(8f)
         val tagRect = RectF(b.left.toFloat(), tagTop, b.left + textWidth + 20f, tagTop + 36f)

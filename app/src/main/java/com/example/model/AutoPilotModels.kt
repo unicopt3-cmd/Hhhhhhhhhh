@@ -28,7 +28,24 @@ enum class AutomationPhase(val labelPt: String, val stepIndex: Int) {
 enum class CandidateSource(val labelPt: String) {
   ACCESSIBILITY("Acessibilidade"),
   OCR("OCR Local"),
-  HYBRID("Híbrido (Árvore + OCR)"),
+  VISUAL_SYMBOL("Análise Visual"),
+  HYBRID("Híbrido (Árvore + OCR/Visual)"),
+}
+
+enum class VisualSymbolType(val labelPt: String) {
+  NONE("Nenhum"),
+  RIGHT_TRIANGLE("Triângulo para Direita"),
+  ARROW_IN_CIRCLE("Seta em Círculo"),
+  RIGHT_ARROW("Seta de Avanço"),
+  DASH_CIRCLE("Traço e Círculo"),
+  CHEVRON_ADVANCE("Seta Dupla / Avanço"),
+}
+
+enum class ButtonActionKind(val labelPt: String) {
+  CLOSE_X("Fechar (X)"),
+  ADVANCE_STEP("Avançar Etapa"),
+  SKIP_AD("Pular Anúncio"),
+  UNKNOWN("Indefinido"),
 }
 
 enum class CandidateClassification(val labelPt: String) {
@@ -40,9 +57,11 @@ enum class CandidateClassification(val labelPt: String) {
 
 enum class DecisionType(val labelPt: String) {
   CLICKED_CLOSE("Fechado Automaticamente"),
+  CLICKED_ADVANCE("Etapa Avançada Automaticamente"),
   OBSERVED_CANDIDATE("Observado (Sem Clique)"),
   BLOCKED_AD_TRAP("Armadilha Bloqueada"),
   REDIRECT_RECOVERED("Retorno de Redirecionamento"),
+  REWARD_MESSAGE_DETECTED("Recompensa Exibida no Anúncio"),
   WAIT_PLAYBACK("Aguardando Término do Anúncio"),
   IGNORED_LOW_CONFIDENCE("Ignorado (Baixa Confiança)"),
 }
@@ -50,6 +69,8 @@ enum class DecisionType(val labelPt: String) {
 enum class RegionBucket(val labelPt: String) {
   TOP_RIGHT("Canto Superior Direito"),
   TOP_LEFT("Canto Superior Esquerdo"),
+  MID_RIGHT("Lateral Direita"),
+  MID_LEFT("Lateral Esquerda"),
   BOTTOM_RIGHT("Canto Inferior Direito"),
   BOTTOM_LEFT("Canto Inferior Esquerdo"),
   TOP_BAR("Barra Superior"),
@@ -93,6 +114,8 @@ data class UiCandidate(
   val isEnabled: Boolean,
   val isVisibleToUser: Boolean,
   val source: CandidateSource,
+  val visualSymbol: VisualSymbolType = VisualSymbolType.NONE,
+  val visualSymbolConfidence: Float = 0f,
 )
 
 data class ScoredCandidate(
@@ -102,6 +125,7 @@ data class ScoredCandidate(
   val regionBucket: RegionBucket,
   val signalBreakdown: List<String>,
   val primaryReason: String,
+  val actionKind: ButtonActionKind = ButtonActionKind.CLOSE_X,
 )
 
 data class AdContextSnapshot(
@@ -111,6 +135,8 @@ data class AdContextSnapshot(
   val hasActiveCountdown: Boolean,
   val countdownSecondsRemaining: Int?,
   val allVisibleTexts: List<String>,
+  val rewardGrantedDetected: Boolean = false,
+  val rewardMessageText: String? = null,
 )
 
 data class SafetyConfig(
@@ -159,4 +185,6 @@ data class EngineSnapshot(
   val redirectRecoveriesSession: Int = 0,
   val safeClicksSession: Int = 0,
   val blockedTrapsSession: Int = 0,
+  val adStageCount: Int = 0,
+  val rewardMessageObserved: Boolean = false,
 )

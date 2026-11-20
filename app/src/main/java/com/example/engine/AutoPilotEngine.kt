@@ -38,6 +38,7 @@ class AutoPilotEngine(
   private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
   private val recognitionEngine = RecognitionEngine()
   private val ocrProcessor = OcrProcessor()
+  private val visualSymbolDetector = VisualSymbolDetector()
   private val redirectProtector = RedirectProtector().apply {
     setOwnPackageName(appContext.packageName)
   }
@@ -66,6 +67,8 @@ class AutoPilotEngine(
   @Volatile private var latestOcrCandidates: List<UiCandidate> = emptyList()
   @Volatile private var latestOcrTexts: List<String> = emptyList()
   @Volatile private var latestOcrTimestampMs: Long = 0L
+  @Volatile private var latestVisualCandidates: List<UiCandidate> = emptyList()
+  @Volatile private var latestVisualTimestampMs: Long = 0L
   @Volatile private var latestAccessibilityCandidates: List<UiCandidate> = emptyList()
   @Volatile private var screenWidthPx: Int = 1200
   @Volatile private var screenHeightPx: Int = 1920
@@ -261,9 +264,27 @@ class AutoPilotEngine(
           scaleToScreenY = scaleY,
           foregroundPackage = pkg,
         )
+      val visualCandidates =
+        visualSymbolDetector.detectGraphicalAdvanceCandidates(
+          bitmap = bitmap,
+          scaleToScreenX = scaleX,
+          scaleToScreenY = scaleY,
+          foregroundPackage = pkg,
+        )
+      val enrichedAccessibility =
+        visualSymbolDetector.inspectAccessibilityCandidates(
+          bitmap = bitmap,
+          scaleToScreenX = scaleX,
+          scaleToScreenY = scaleY,
+          accessibilityCandidates = latestAccessibilityCandidates,
+        )
+
+      latestAccessibilityCandidates = enrichedAccessibility
       latestOcrCandidates = ocrResult.candidates
       latestOcrTexts = ocrResult.allTexts
       latestOcrTimestampMs = System.currentTimeMillis()
+      latestVisualCandidates = visualCandidates
+      latestVisualTimestampMs = latestOcrTimestampMs
       _snapshot.update {
         it.copy(
           ocrActive = true,
@@ -287,11 +308,14 @@ class AutoPilotEngine(
         val ocrFresh = cfg.ocrEnabled && (now - latestOcrTimestampMs) <= 3500L
         val ocrCandidates = if (ocrFresh) latestOcrCandidates else emptyList()
         val ocrTexts = if (ocrFresh) latestOcrTexts else emptyList()
+        val visualFresh = (now - latestVisualTimestampMs) <= 3500L
+        val visualCandidates = if (visualFresh) latestVisualCandidates else emptyList()
 
         val merged =
           recognitionEngine.mergeCandidates(
             accessibilityCandidates = latestAccessibilityCandidates,
             ocrCandidates = ocrCandidates,
+            visualCandidates = visualCandidates,
           )
 
         val adContext =
@@ -345,6 +369,9 @@ class AutoPilotEngine(
             _snapshot.update { it.copy(blockedTrapsSession = it.blockedTrapsSession + 1) }
           }
         }
+        stepResult.rewardDecisionToLog?.let { rewardEntry ->
+          repository.logDecision(rewardEntry)
+        }
 
         _snapshot.update {
           it.copy(
@@ -352,6 +379,8 @@ class AutoPilotEngine(
             adWatchElapsedSeconds = stepResult.adWatchElapsedSeconds,
             latestCandidates = scored.take(6),
             lastActionSummary = stepResult.statusSummaryPt,
+            adStageCount = stepResult.adStageCount,
+            rewardMessageObserved = stepResult.rewardMessageObserved,
           )
         }
       } finally {
